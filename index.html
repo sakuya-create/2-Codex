@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ひらめき工房</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Daily 10 minute creativity game</p>
+        <h1>ひらめき工房</h1>
+      </div>
+      <nav class="tabs" aria-label="メインナビゲーション">
+        <button class="tab is-active" data-view="home">ホーム</button>
+        <button class="tab" data-view="session">今日の工房</button>
+        <button class="tab" data-view="history">履歴</button>
+        <button class="tab" data-view="rewards">称号</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="home" class="view is-active" aria-labelledby="home-title">
+        <div class="hero">
+          <div>
+            <p class="eyebrow">今日のモード</p>
+            <h2 id="home-title"><span id="todayModeLabel">実用</span>アイデアの日</h2>
+            <p class="lead">状態を選び、カードで制約を引き、少し離れてから最終案へ磨く。毎日10分の創造性トレーニングです。</p>
+          </div>
+          <div class="stats-grid" aria-label="現在の進捗">
+            <div class="stat">
+              <span id="coinCount">0</span>
+              <small>ひらめきコイン</small>
+            </div>
+            <div class="stat">
+              <span id="streakCount">0</span>
+              <small>連続日数</small>
+            </div>
+            <div class="stat">
+              <span id="ideaCount">0</span>
+              <small>保存アイデア</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-row">
+          <article class="panel">
+            <h3>今日の流れ</h3>
+            <ol class="steps-list">
+              <li>状態チェック</li>
+              <li>カード抽選</li>
+              <li>発想メモ</li>
+              <li>無関係ミニゲーム</li>
+              <li>仕上げと報酬</li>
+            </ol>
+          </article>
+          <article class="panel">
+            <h3>続けるほど増えるもの</h3>
+            <p>制約達成、発想量、連続プレイでコインと称号を獲得。完成案だけでなく、途中メモも保存します。</p>
+            <button class="primary-action" data-go="session">今日の工房を始める</button>
+          </article>
+        </div>
+      </section>
+
+      <section id="session" class="view" aria-labelledby="session-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Today's workshop</p>
+            <h2 id="session-title">今日の10分セッション</h2>
+          </div>
+          <div class="timer" id="timerText">目安 10:00</div>
+        </div>
+
+        <div class="progress-track" aria-label="セッション進行">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <article class="work-card" id="stepMood">
+          <p class="eyebrow">Step 1</p>
+          <h3>今の状態を選ぶ</h3>
+          <p>今日の状態に合わせて、制約の重さとヒントを少し変えます。</p>
+          <div class="choice-grid" id="moodChoices"></div>
+        </article>
+
+        <article class="work-card is-hidden" id="stepCards">
+          <p class="eyebrow">Step 2</p>
+          <h3>今日のカード</h3>
+          <div class="card-grid" id="promptCards"></div>
+          <button class="secondary-action" id="redrawCards">カードを引き直す</button>
+          <button class="primary-action" data-next="ideas">このカードで発想する</button>
+        </article>
+
+        <article class="work-card is-hidden" id="stepIdeas">
+          <p class="eyebrow">Step 3</p>
+          <h3>まず粗く出す</h3>
+          <aside class="session-brief" id="ideaBrief" aria-label="今日の条件"></aside>
+          <label for="roughIdea">発想メモ</label>
+          <textarea id="roughIdea" rows="8" placeholder="まだ凡庸でも大丈夫。思いついたことを短く並べてください。"></textarea>
+          <p class="hint" id="ideaHint"></p>
+          <button class="primary-action" data-next="mini">ミニゲームへ</button>
+        </article>
+
+        <article class="work-card is-hidden" id="stepMini">
+          <p class="eyebrow">Step 4</p>
+          <h3>Stroop+記憶ミニゲーム</h3>
+          <p>「文字」「インク色」「2手前のインク色」を見分けます。キーの <kbd>1</kbd> から <kbd>4</kbd> でも回答できます。</p>
+          <div class="mini-status">
+            <span>残り <strong id="miniTime">60</strong> 秒</span>
+            <span>スコア <strong id="miniScore">0</strong></span>
+            <span>ラウンド <strong id="miniRound">0</strong></span>
+          </div>
+          <div class="mini-rule" id="miniRule">開始すると最初の問題が表示されます。</div>
+          <div class="chip" id="colorChip">Start</div>
+          <div class="sort-buttons" id="sortButtons" aria-label="回答"></div>
+          <button class="secondary-action" id="startMini">開始</button>
+          <button class="primary-action" data-next="final">仕上げへ</button>
+        </article>
+
+        <article class="work-card is-hidden" id="stepFinal">
+          <p class="eyebrow">Step 5</p>
+          <h3>制約を守って仕上げる</h3>
+          <aside class="session-brief" id="finalBrief" aria-label="今日の条件"></aside>
+          <label for="finalIdea">最終案</label>
+          <textarea id="finalIdea" rows="9" placeholder="制約、NGワード、素材を意識して、使える案または作品案に磨いてください。"></textarea>
+          <div class="score-box" id="scoreBox"></div>
+          <button class="primary-action" id="finishSession">保存して報酬を受け取る</button>
+        </article>
+      </section>
+
+      <section id="history" class="view" aria-labelledby="history-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Archive</p>
+            <h2 id="history-title">アイデア履歴</h2>
+          </div>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+
+      <section id="rewards" class="view" aria-labelledby="rewards-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Rewards</p>
+            <h2 id="rewards-title">称号とテーマ</h2>
+          </div>
+        </div>
+        <div id="badgeList" class="badge-list"></div>
+        <div class="shop">
+          <h3>テーマショップ</h3>
+          <div id="themeShop" class="theme-grid"></div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="script.js"></script>
+  </body>
+</html>
