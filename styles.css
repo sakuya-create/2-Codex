@@ -79,6 +79,11 @@ h3 {
   font-size: 1.4rem;
 }
 
+h4 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
 .eyebrow {
   margin-bottom: 6px;
   color: var(--color-ink-soft);
@@ -313,6 +318,37 @@ main {
 
 .brief-item {
   background: rgba(255, 255, 255, 0.82);
+}
+
+.rough-preview {
+  margin: 0 0 18px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #fffdfa;
+  box-shadow: inset 0 0 0 1px rgba(242, 217, 220, 0.36);
+}
+
+.rough-preview-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.rough-preview-head .eyebrow {
+  margin-bottom: 0;
+}
+
+.rough-preview-body {
+  min-height: 82px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(255, 248, 237, 0.92), rgba(255, 255, 255, 0.9));
+  color: var(--color-muted);
+  line-height: 1.7;
+  white-space: pre-wrap;
 }
 
 label {

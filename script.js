@@ -179,6 +179,14 @@ function renderSessionBrief() {
   });
 }
 
+function renderRoughIdeaPreview() {
+  const source = document.getElementById("roughIdea");
+  const target = document.getElementById("roughPreview");
+  if (!source || !target) return;
+  const rough = source.value.trim();
+  target.innerHTML = rough ? escapeHtml(rough) : "まだ発想メモがありません。";
+}
+
 function switchView(viewId) {
   document.querySelectorAll(".view").forEach(view => view.classList.toggle("is-active", view.id === viewId));
   document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("is-active", tab.dataset.view === viewId));
@@ -192,6 +200,7 @@ function showStep(stepName) {
   document.getElementById(`step${stepName[0].toUpperCase()}${stepName.slice(1)}`).classList.remove("is-hidden");
   document.getElementById("progressBar").style.width = `${map[stepName]}%`;
   renderSessionBrief();
+  renderRoughIdeaPreview();
   if (!timerStartedAt) startTimer();
 }
 
@@ -430,6 +439,7 @@ document.addEventListener("click", event => {
 });
 
 document.getElementById("finalIdea").addEventListener("input", updateScorePreview);
+document.getElementById("roughIdea").addEventListener("input", renderRoughIdeaPreview);
 document.addEventListener("keydown", event => {
   if (!miniActive || !["1", "2", "3", "4"].includes(event.key)) return;
   const option = stroopColors[Number(event.key) - 1];
@@ -439,4 +449,5 @@ document.addEventListener("keydown", event => {
 drawCards();
 render();
 renderSessionBrief();
+renderRoughIdeaPreview();
 showStep("mood");
