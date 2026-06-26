@@ -160,6 +160,21 @@
       </section>
     </main>
 
+    <div class="reward-overlay" id="rewardOverlay" role="dialog" aria-modal="true" aria-labelledby="rewardTitle" hidden>
+      <div class="confetti-field" id="confettiField" aria-hidden="true"></div>
+      <section class="reward-modal">
+        <p class="eyebrow">Workshop complete</p>
+        <h2 id="rewardTitle">報酬獲得</h2>
+        <div class="reward-coin-burst">
+          <span id="rewardCoins">0</span>
+          <small>ひらめきコイン</small>
+        </div>
+        <div class="reward-breakdown" id="rewardBreakdown"></div>
+        <div class="reward-badges" id="rewardBadges"></div>
+        <button class="primary-action" id="closeReward">ホームで確認する</button>
+      </section>
+    </div>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="script.js"></script>
   </body>

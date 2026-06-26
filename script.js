@@ -53,6 +53,7 @@ let miniInkHistory = [];
 let currentMiniAnswer = "";
 let miniActive = false;
 let toastTimer = null;
+let rewardReturnView = "home";
 
 function loadState() {
   const fallback = {
@@ -289,6 +290,17 @@ function scoreSession() {
   return { hasMaterial, avoidsBanned, enoughLength, revised, points };
 }
 
+function rewardBreakdown(score) {
+  return [
+    { label: "完成ボーナス", value: 20, ok: true },
+    { label: "素材入り", value: score.hasMaterial ? 10 : 0, ok: score.hasMaterial },
+    { label: "NGワード回避", value: score.avoidsBanned ? 10 : 0, ok: score.avoidsBanned },
+    { label: "60字以上", value: score.enoughLength ? 10 : 0, ok: score.enoughLength },
+    { label: "改稿あり", value: score.revised ? 10 : 0, ok: score.revised },
+    { label: "ミニゲーム", value: Math.min(20, Math.max(0, session.miniScore)), ok: session.miniScore > 0 }
+  ];
+}
+
 function updateScorePreview() {
   const score = scoreSession();
   document.getElementById("scoreBox").innerHTML = [
@@ -311,7 +323,8 @@ function finishSession() {
     state.streak = state.lastPlayed === yesterday ? state.streak + 1 : 1;
   }
   state.lastPlayed = todayKey;
-  const earned = 20 + score.points * 10 + Math.min(20, Math.max(0, session.miniScore));
+  const breakdown = rewardBreakdown(score);
+  const earned = breakdown.reduce((sum, item) => sum + item.value, 0);
   state.coins += earned;
   if (score.hasMaterial && score.avoidsBanned) state.stats.constraintWins += 1;
   state.stats[session.mode] += 1;
@@ -329,24 +342,26 @@ function finishSession() {
     score: score.points,
     coins: earned
   });
-  unlockBadges();
+  const newBadges = unlockBadges();
   saveState();
   render();
-  showToast(`${earned}コインを獲得しました。`);
+  showRewardOverlay({ earned, breakdown, newBadges });
   session = freshSession();
   drawCards();
   document.getElementById("roughIdea").value = "";
   document.getElementById("finalIdea").value = "";
   showStep("mood");
-  switchView("home");
 }
 
 function unlockBadges() {
+  const unlockedNow = [];
   badges.forEach(badge => {
     if (!state.unlockedBadges.includes(badge.id) && badge.condition(state)) {
       state.unlockedBadges.push(badge.id);
+      unlockedNow.push(badge);
     }
   });
+  return unlockedNow;
 }
 
 function renderHistory() {
@@ -395,6 +410,46 @@ function buyOrSelectTheme(themeId) {
   render();
 }
 
+function showRewardOverlay({ earned, breakdown, newBadges }) {
+  const overlay = document.getElementById("rewardOverlay");
+  const coinTarget = document.getElementById("rewardCoins");
+  const breakdownTarget = document.getElementById("rewardBreakdown");
+  const badgesTarget = document.getElementById("rewardBadges");
+  coinTarget.textContent = earned;
+  breakdownTarget.innerHTML = breakdown.map(item => `
+    <div class="reward-line ${item.ok ? "is-earned" : "is-missed"}">
+      <span>${item.label}</span>
+      <strong>${item.value > 0 ? "+" : ""}${item.value}</strong>
+    </div>
+  `).join("");
+  badgesTarget.innerHTML = newBadges.length
+    ? `<h3>新しい称号</h3>${newBadges.map(badge => `<div class="badge-unlock">${badge.label}</div>`).join("")}`
+    : `<p>称号まであと少し。次の工房で伸ばしましょう。</p>`;
+  renderConfetti();
+  overlay.hidden = false;
+  overlay.classList.add("is-visible");
+  document.getElementById("closeReward").focus();
+}
+
+function hideRewardOverlay() {
+  const overlay = document.getElementById("rewardOverlay");
+  overlay.classList.remove("is-visible");
+  overlay.hidden = true;
+  switchView(rewardReturnView);
+}
+
+function renderConfetti() {
+  const field = document.getElementById("confettiField");
+  const colors = ["#f2d9dc", "#d9f2d8", "#f9e6b7", "#dbeafe", "#263d5b"];
+  field.innerHTML = Array.from({ length: 54 }, (_, index) => {
+    const left = Math.round(Math.random() * 100);
+    const delay = (Math.random() * 0.85).toFixed(2);
+    const duration = (1.8 + Math.random() * 1.4).toFixed(2);
+    const color = colors[index % colors.length];
+    return `<span style="--x:${left}%;--delay:${delay}s;--duration:${duration}s;--confetti:${color}"></span>`;
+  }).join("");
+}
+
 function showToast(message) {
   const toast = document.getElementById("toast");
   toast.textContent = message;
@@ -427,6 +482,7 @@ document.addEventListener("click", event => {
   if (event.target.id === "redrawCards") drawCards();
   if (event.target.id === "startMini") startMiniGame();
   if (event.target.id === "finishSession") finishSession();
+  if (event.target.id === "closeReward") hideRewardOverlay();
 
   const next = event.target.closest("[data-next]");
   if (next) showStep(next.dataset.next);
